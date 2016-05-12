@@ -1,0 +1,161 @@
+<html>
+<head>
+	<title>Birds of the World</title>
+	<style type="text/css">
+		button, div, form, input {
+			margin: 10px;
+		}
+	</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Birds of the World</h1>
+
+  <!-- Rendered Buttons will get Dumped Here  -->
+  <div id="buttonsView"></div>
+
+  <form id="bird-form">
+    <label for="bird-input">Add a bird</label>
+    <input type="text" id="bird-input"><br>
+    
+    <!-- Button triggers new bird to be added -->
+    <input id="addBird" type="submit" value="Add a bird">
+  </form>
+
+
+  <!-- birds will Get Dumped here -->
+  <div id="birdsView"></div>
+
+<script src='http://code.jquery.com/jquery-2.1.3.min.js'></script>
+<script type="text/javascript">
+
+	// Initial array of birds
+	var birds = ['Swallow-Tailed Kite','Kingfisher','Anhinga','Redwinged Blackbird','Cardinal','Cattle Egret','Falcon','Eagle','Kite','Purple Martin','Bluebird','Robin','Great Blue Heron','Sand Hill Crane','Giant Egret','Hummingbird'];
+	var movingImage = []
+
+	// ========================================================
+
+	// displaybirdInfo function now re-renders the HTML to display the appropriate content. 
+	function displayBirdInfo(){
+		var limit = 10
+		var bird = $(this).attr('data-name');
+		var queryURL = "http://api.giphy.com/v1/gifs/search?q=bird+"+bird+"&api_key=dc6zaTOxFJmzC&limit="+limit+"&fmt=json";
+		// Creates AJAX call for the specific bird being 
+			console.log(queryURL);
+
+		$.ajax({url: queryURL, method: 'GET'}).done(function(response) {
+			
+			console.log(response);
+
+			for (x=0; x<limit; x++){
+
+			// Creates a generic div to hold the bird
+			var birdDiv = $('<div>');
+
+			// Retrieves the Rating Data
+			var rating = response.data[x].rating;
+
+			// Creates an element to have the rating displayed
+			var pOne = $('<p>').text( "Rating: " + rating);
+
+			// Displays the rrating
+			birdDiv.append(pOne);
+
+			// Creates an element to hold the image 
+			var stillImage = $('<img>').attr("src", response.data[x].images.fixed_height_still.url);
+			var movingImage = $('<img>').attr("src",response.data[x].images.fixed_height.url);
+			stillImage.attr("data-img", "still");
+			stillImage.addClass("gif")
+			// movingImage[x]=movingImage++
+			// Appends the image
+			//var still = true;
+
+
+			birdDiv.append(stillImage);
+
+
+
+			// Puts the entire bird above the previous birds.
+			$('#birdsView').prepend(birdDiv);
+		}
+
+
+		});
+
+
+	}
+
+$(document).on('click', '.gif', renderImage);
+
+function renderImage() {
+	var gifImage = $(this).attr('data-img');
+	console.log(gifImage);
+	if (gifImage=="still") {
+		$(.this).attr('src = ')
+	}
+}
+	
+
+	// ========================================================
+
+	// Generic function for displaying bird data 
+	function renderButtons(){ 
+
+		// Deletes the birds prior to adding new birds (this is necessary otherwise you will have repeat buttons)
+		$('#buttonsView').empty();
+
+		// Loops through the array of birds
+		for (var i = 0; i < birds.length; i++){
+
+			// Then dynamicaly generates buttons for each bird in the array
+
+			// Note the jQUery syntax here... 
+		    var a = $('<button>') // This code $('<button>') is all jQuery needs to create the beginning and end tag. (<button></button>)
+		    a.addClass('bird'); // Added a class 
+		    a.attr('data-name', birds[i]); // Added a data-attribute
+		    a.text(birds[i]); // Provided the initial button text
+		    $('#buttonsView').append(a); // Added the button to the HTML
+		    // Clear the textbox when done
+			$('#bird-input').val("");
+
+		}
+	}
+
+	// ========================================================
+
+	// This function handles events where one button is clicked
+	$('#addBird').on('click', function(){
+
+		// This line of code will grab the input from the textbox
+		var bird = $('#bird-input').val().trim();
+
+		// The bird from the textbox is then added to our array
+		birds.push(bird);
+		
+		// Our array then runs which handles the processing of our bird array
+		renderButtons();
+
+		// We have this line so that users can hit "enter" instead of clicking on the button and it won't move to the next page
+		return false;
+	})
+
+	// ========================================================
+
+	// Generic function for displaying the birdInfo
+	$(document).on('click', '.bird', displayBirdInfo);
+
+
+
+
+	// ========================================================
+
+	// This calls the renderButtons() function
+	renderButtons();
+
+
+</script>
+
+
+</body>
+</html>
